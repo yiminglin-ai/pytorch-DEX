@@ -11,6 +11,7 @@ gender_model = Gender()
 cwd = os.path.dirname(__file__)
 age_model_path = os.path.join(cwd, "pth/age_sd.pth")
 gender_model_path = os.path.join(cwd, "pth/gender_sd.pth")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def _eval():
@@ -18,8 +19,10 @@ def _eval():
     global gender_model
     age_model.load_state_dict(torch.load(age_model_path))
     age_model.eval()
+    age_model.to(device)
     gender_model.load_state_dict(torch.load(gender_model_path))
     gender_model.eval()
+    gender_model.to(device)
 
 
 def preprocess(img):
@@ -28,7 +31,7 @@ def preprocess(img):
     img = img[None, :, :, :]
     tensor = torch.from_numpy(img)
     tensor = tensor.type("torch.FloatTensor")
-    return tensor
+    return tensor.to(device)
 
 
 def expected_age(vector):
@@ -42,7 +45,7 @@ def estimate_age(img):
     tensor = preprocess(img)
     with torch.no_grad():
         output = age_model(tensor)
-    output = output.numpy().squeeze()
+    output = output.cpu().numpy().squeeze()
     age = expected_age(output)
     return age
 
@@ -53,7 +56,7 @@ def estimate_gender(img):
     tensor = preprocess(img)
     with torch.no_grad():
         output = gender_model(tensor)
-    output = output.numpy().squeeze()
+    output = output.cpu().numpy().squeeze()
     return output[0], output[1]
 
 
