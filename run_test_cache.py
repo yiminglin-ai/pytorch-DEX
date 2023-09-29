@@ -1,11 +1,10 @@
 import logging
 import os
 
-import numpy as np
-
 import cv2
 import dex
 import mxnet as mx
+import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
